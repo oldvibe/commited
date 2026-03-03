@@ -1,8 +1,8 @@
- name: Auto Commit Daily Random
+name: Auto Commit Every 10 Minutes
 
  on:
    schedule:
-     - cron: '0 23 * * *'  # Runs daily at 23:00 UTC (midnight Morocco time)
+     - cron: '*/10 * * * *'  # Runs every 10 minutes
    workflow_dispatch:
 
  jobs:
@@ -11,31 +11,25 @@
 
      steps:
        - name: Checkout code
-         uses: actions/checkout@v4  # Latest version for better compatibility
+         uses: actions/checkout@v4
 
        - name: Set up Git
          run: |
            git config --global user.name "ynaitedd"
            git config --global user.email "bobies431@gmail.com"
 
-       - name: Make random commits
+       - name: Make a commit
          run: |
-           COMMITS=$(( ( RANDOM % 21 ) + 20 ))  # Random number between 20 and 40
-           echo "Will make $COMMITS commits today."
-
-           for i in $(seq 1 $COMMITS); do
-             echo "Commit $i made at $(date -u)" >> daily_log.txt
-             git add daily_log.txt
-             if git commit -m "Random commit $i at $(date -u)"; then
-               echo "Commit $i successful"
-             else
-               echo "Error: Commit $i failed"
-               exit 1  # Exit on failure to ensure the error is caught
-             fi
-           done
+           echo "Commit made at $(date -u)" >> daily_log.txt
+           git add daily_log.txt
+           if git commit -m "Auto commit at $(date -u)"; then
+             echo "Commit successful"
+           else
+             echo "Nothing to commit or error occurred"
+           fi
 
        - name: Push changes
-         uses: ad-m/github-push-action@v0.8.0  # Latest version
+         uses: ad-m/github-push-action@v0.8.0
          with:
            github_token: ${{ secrets.GITHUB_TOKEN }}
            branch: ${{ github.ref_name }}
